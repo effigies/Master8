@@ -3,7 +3,7 @@
 
 import serial
 
-__author__  = 'Christopher J. Johnson <effigies@bu.edu>'
+__author__ = 'Christopher J. Markiewicz <effigies@bu.edu>'
 __version__ = 0.1
 
 # ASCII codes for Master 8 Keys
@@ -34,10 +34,11 @@ BEGIN                   = "B"
 
 cmOff, cmFreeRun, cmTrain, cmTrig, cmDC, cmGate = range(6)
 
+
 class Master8(object):
     """An attempt to replicate the Master 8 SDK as closely as possible
     in Python.
-    
+
     At present, the following features are known to be missing:
         - Automatic connection to Master 8 device (Python serial
           connection needed)
@@ -47,21 +48,21 @@ class Master8(object):
 
     None of these should be difficult, but they are not important to my
     use and my access to a Master 8 is sporadic.
-    
+
     The Master 8 SDK assumes a Windows machine, so comparisons cannot
     readily be made with our equipment. This library ought to run on
     Windows, though."""
 
     # Ranges of valid parameters for various functions
-    paradigms = range(1,9)
-    channels = range(1,9) # XXX Ignores additive channels
+    paradigms = range(1, 9)
+    channels = range(1, 9)  # XXX Ignores additive channels
 
     # Replicate the integer cm* modes and their corresponding codes
     cmList = range(6)
     modes = [OFF, FREE_RUN, TRAIN, TRIG, DC, GATE]
 
     def __init__(self, connection=None):
-        if connection == None:
+        if connection is None:
             # XXX Should attempt to find Master 8; cannot test without one
             self.c = serial.Serial()
         elif type(connection) == str:
@@ -74,12 +75,12 @@ class Master8(object):
     def write(self, *args):
         """Translate list of arguments to a command string and send to
         device"""
-        self.c.write(' '.join(map(str,args)))
+        self.c.write(' '.join(map(str, args)))
 
     def writeInterval(self, f, minf=0, maxf=3999, res=6):
         """Write a length of time to the Master 8. Intervals can be
         specified to microsecond resolution.
-        
+
         Parameters:
             f       - floating point representation of interval
             minf    - minimum allowable inteval
@@ -92,11 +93,11 @@ class Master8(object):
             assert(f <= maxf)
         f_ = "{{0:0.{0:d}f}}".format(res).format(f).rstrip('0').rstrip('.')
         self.write(f_, ENTER, 0, ENTER)
-    
+
     def writeVoltage(self, f, minf=-12.7, maxf=12.7, res=1):
         """Write a voltage to the Master 8. Voltages can be specified to
         0.1V resolution.
-        
+
         Parameters:
             f       - floating point representation of voltage
             minf    - minimum allowable voltage
@@ -108,7 +109,7 @@ class Master8(object):
         if maxf is not None:
             assert(f <= maxf)
 
-        self.write(round(abs(f),res), ENTER)
+        self.write(round(abs(f), res), ENTER)
 
         if f < 0:
             self.write('-')
@@ -164,7 +165,7 @@ class Master8(object):
         self.write(channel)
 
     def clearParadigm(self):
-        self.write(OFF,ALL,ALL,ENTER)
+        self.write(OFF, ALL, ALL, ENTER)
 
     def copyParadigm(self, srcParadigm, destParadigm):
         assert(srcParadigm in self.paradigms)
@@ -180,4 +181,3 @@ class Master8(object):
         assert(srcChannel in self.channels)
         assert(triggeredChannel in self.channels)
         self.write(DISCONNECT, srcChannel, triggeredChannel, ENTER)
-
